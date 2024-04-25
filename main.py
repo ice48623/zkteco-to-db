@@ -1,3 +1,4 @@
+import sys
 from config import load_config
 from const import AttendancePunchType
 from model import User, Attendance
@@ -29,6 +30,13 @@ def fetch_attendances(client: ZKTeco):
 def fetch_users(client: ZKTeco):
     users = client.get_users()
     return users
+
+
+def fetch_firmware(client: ZKTeco):
+    print('fetching for device firmware information')
+    firmware = client.get_firmware()
+    print(f'device firmware: {firmware}')
+    return firmware
 
 
 def save_users(users: list[ZKUser]):
@@ -71,12 +79,23 @@ def save_attendances(attendances: list[ZKAttendance]):
     print(f"Successfully save {len(new_atts)} attendance records")
 
 
-if __name__ == '__main__':
-    db_config = load_config(filename=config_file, section="postgresql")
-    client = connect_zkteco()
-
+def sync(client):
     users = fetch_users(client=client)
     save_users(users)
 
     attendances = fetch_attendances(client=client)
     save_attendances(attendances=attendances)
+
+
+if __name__ == '__main__':
+    db_config = load_config(filename=config_file, section="postgresql")
+    client = connect_zkteco()
+
+    arg = sys.argv[1]
+
+    if arg == 'sync':
+        sync(client=client)
+
+    if arg == "test_connection":
+        fetch_firmware(client=client)
+
