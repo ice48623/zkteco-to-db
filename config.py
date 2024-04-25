@@ -1,9 +1,10 @@
+import os
 from configparser import ConfigParser
 
 
 def load_config(filename='config.ini', section='postgresql'):
     parser = ConfigParser()
-    parser.read(filename)
+    parser.read(os.path.join(os.path.dirname(__file__), filename))
 
     # get section, default to postgresql
     config = {}
