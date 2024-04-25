@@ -34,14 +34,18 @@ poetry install
 Initialize Database
 ```
 cd zkteco-to-db
-python init_db.py
+python main.py init_db
 ```
 
 Sync to database
 ```
-python main.py
+python main.py sync
 ```
 
+Test device connection
+```
+python main.py test_connection
+```
 
 ### Tech Stack
 1. Python

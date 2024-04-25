@@ -1,7 +1,7 @@
 import sys
 from config import load_config
 from const import AttendancePunchType
-from model import User, Attendance
+from model import psql_db, User, Attendance
 from zkteco import ZKTeco
 from zkteco import Attendance as ZKAttendance
 from zkteco import User as ZKUser
@@ -87,6 +87,14 @@ def sync(client):
     save_attendances(attendances=attendances)
 
 
+def init_database():
+    print("Initializing database schema")
+    psql_db.connect()
+    psql_db.create_tables([Attendance, User])
+    psql_db.close()
+    print("Initializing Complete")
+
+
 if __name__ == '__main__':
     db_config = load_config(filename=config_file, section="postgresql")
     client = connect_zkteco()
@@ -99,3 +107,5 @@ if __name__ == '__main__':
     if arg == "test_connection":
         fetch_firmware(client=client)
 
+    if arg == "init_db":
+        init_database()
