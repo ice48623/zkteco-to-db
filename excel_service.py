@@ -93,8 +93,8 @@ class ExcelService:
 
         writer.close()
 
-    def export(self):
+    def export(self, output_path: str = 'output.xlsx'):
         records = self.load_data(start_date=self.start_date, end_date=self.end_date)
         data, columns = self.prepare_data(records=records)
-        self.generate_excel(data=data, columns=columns, output_path='output.xlsx', sheet_name='attendance')
-
+        self.generate_excel(data=data, columns=columns, output_path=output_path, sheet_name='attendance')
+        return output_path

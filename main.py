@@ -2,6 +2,7 @@ import sys
 from config import load_config
 from const import AttendancePunchType
 from excel_service import ExcelService
+from mail_service import MailService
 from model import psql_db, User, Attendance
 from zkteco import ZKTeco
 from zkteco import Attendance as ZKAttendance
@@ -85,6 +86,22 @@ def export_excel():
     service.export()
 
 
+def export_and_send():
+    config = load_config(filename=config_file, section="gmail")
+    service = ExcelService()
+    file_path = service.export()
+    MailService.send_mail(
+        to_email="ice48623@gmail.com",
+        subject="test",
+        message="test",
+        attachments=[file_path],
+        host=config.get("host"),
+        port=config.get("port"),
+        from_email="ice48623@gmail.com",
+        app_password=config.get("app_password")
+    )
+
+
 def sync(client):
     users = fetch_users(client=client)
     save_users(users)
@@ -118,3 +135,6 @@ if __name__ == '__main__':
 
     if arg == "export":
         export_excel()
+
+    if arg == "export_and_send":
+        export_and_send()
