@@ -31,6 +31,7 @@ class ExcelService:
         return datetime.strptime(date_str, '%d-%m-%Y').date()
 
     def load_data(self, start_date: date, end_date: date):
+        end_date = end_date + timedelta(days=1) # offset for end_date not inclusive
         records = (Attendance
                    .select(Attendance, User)
                    .join(User)

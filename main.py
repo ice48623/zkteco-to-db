@@ -1,4 +1,5 @@
 import sys
+import argparse
 from config import load_config
 from const import AttendancePunchType
 from excel_service import ExcelService
@@ -81,14 +82,14 @@ def save_attendances(attendances: list[ZKAttendance]):
     print(f"Successfully save {len(new_atts)} attendance records")
 
 
-def export_excel():
-    service = ExcelService()
+def export_excel(start_date: str, end_date: str):
+    service = ExcelService(start_date=start_date, end_date=end_date)
     service.export()
 
 
-def export_and_send():
+def export_and_send(start_date: str, end_date: str):
     config = load_config(filename=config_file, section="gmail")
-    service = ExcelService()
+    service = ExcelService(start_date=start_date, end_date=end_date)
     file_path = service.export()
     MailService.send_mail(
         to_email="ice48623@gmail.com",
@@ -119,22 +120,31 @@ def init_database():
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Optional app description')
     db_config = load_config(filename=config_file, section="postgresql")
     client = connect_zkteco()
 
-    arg = sys.argv[1]
+    parser.add_argument('option', type=str,
+                        help='A required integer positional argument')
 
-    if arg == 'sync':
+    parser.add_argument('start_date', type=str, nargs='?',
+                        help='An optional integer positional argument')
+
+    parser.add_argument('end_date', type=str, nargs='?',
+                        help='An optional integer positional argument')
+    args = parser.parse_args()
+
+    if args.option == "sync":
         sync(client=client)
 
-    if arg == "test_connection":
+    if args.option == "test_connection":
         fetch_firmware(client=client)
 
-    if arg == "init_db":
+    if args.option == "init_db":
         init_database()
 
-    if arg == "export":
-        export_excel()
+    if args.option == "export":
+        export_excel(start_date=args.start_date, end_date=args.end_date)
 
-    if arg == "export_and_send":
-        export_and_send()
+    if args.option == "export_and_send":
+        export_and_send(start_date=args.start_date, end_date=args.end_date)
