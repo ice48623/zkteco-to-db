@@ -1,6 +1,7 @@
 import sys
 from config import load_config
 from const import AttendancePunchType
+from excel_service import ExcelService
 from model import psql_db, User, Attendance
 from zkteco import ZKTeco
 from zkteco import Attendance as ZKAttendance
@@ -79,6 +80,11 @@ def save_attendances(attendances: list[ZKAttendance]):
     print(f"Successfully save {len(new_atts)} attendance records")
 
 
+def export_excel():
+    service = ExcelService()
+    service.export()
+
+
 def sync(client):
     users = fetch_users(client=client)
     save_users(users)
@@ -109,3 +115,6 @@ if __name__ == '__main__':
 
     if arg == "init_db":
         init_database()
+
+    if arg == "export":
+        export_excel()
