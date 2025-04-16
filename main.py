@@ -92,13 +92,13 @@ def export_and_send(start_date: str, end_date: str):
     service = ExcelService(start_date=start_date, end_date=end_date)
     file_path = service.export()
     MailService.send_mail(
-        to_email="ice48623@gmail.com",
-        subject="test",
-        message="test",
+        to_email=config.get("to_email"),
+        subject=config.get("subject"),
+        message=config.get("message"),
         attachments=[file_path],
         host=config.get("host"),
         port=config.get("port"),
-        from_email="ice48623@gmail.com",
+        from_email=config.get("from_email"),
         app_password=config.get("app_password")
     )
     if os.path.exists(file_path):
