@@ -1,4 +1,4 @@
-import sys
+import os
 import argparse
 from config import load_config
 from const import AttendancePunchType
@@ -101,6 +101,8 @@ def export_and_send(start_date: str, end_date: str):
         from_email="ice48623@gmail.com",
         app_password=config.get("app_password")
     )
+    if os.path.exists(file_path):
+        os.remove(file_path)
 
 
 def sync(client):
