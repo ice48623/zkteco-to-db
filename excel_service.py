@@ -61,13 +61,15 @@ class ExcelService:
         row = []
         current_date = None
         current_user = None
-        for r in records:
+        for idx, r in enumerate(records):
             if not current_user:
                 current_user = r.user_id.name
             if not current_date:
                 current_date = r.timestamp.date()
 
-            if current_date != r.timestamp.date():
+            if current_date != r.timestamp.date() or idx == len(records)-1:
+                if idx == len(records)-1:
+                    row.append(r.timestamp)
                 wh_hours, wh_minutes = self.calculate_actual_working_hours(start_time=row[0], end_time=row[-1])
                 actual_working_hours = f"{wh_hours}:{wh_minutes}"
                 ot_hours, ot_minutes = self.calculate_ot(start_time=row[0], end_time=row[-1])
