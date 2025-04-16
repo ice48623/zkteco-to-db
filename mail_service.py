@@ -15,18 +15,6 @@ class MailService:
         msg['To'] = to_email
         msg['Subject'] = subject
         msg.attach(MIMEText(message, 'plain'))
-        # try:
-        #     server = smtplib.SMTP("smtp.gmail.com", 587)
-        #     server.starttls()
-        #     server.ehlo()
-        #     # server.login("ice48623@gmail.com", "mcrx beua erxb dvxd")
-        #     text = msg.as_string()
-        #
-        #     server.sendmail(from_email, to_email, text)
-        # except Exception as e:
-        #     print(e)
-        # finally:
-        #     server.close()
 
         for filepath in attachments:
             part = MIMEBase('application', "octet-stream")

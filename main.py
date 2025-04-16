@@ -84,13 +84,13 @@ def save_attendances(attendances: list[ZKAttendance]):
 
 def export_excel(start_date: str, end_date: str):
     service = ExcelService(start_date=start_date, end_date=end_date)
-    service.export()
+    service.export(output_path=f"รายงานการเข้างาน Amazon มศว - {start_date} - {end_date}.xlsx")
 
 
 def export_and_send(start_date: str, end_date: str):
     config = load_config(filename=config_file, section="gmail")
     service = ExcelService(start_date=start_date, end_date=end_date)
-    file_path = service.export()
+    file_path = service.export(output_path=f"รายงานการเข้างาน Amazon มศว - {start_date} - {end_date}.xlsx")
     MailService.send_mail(
         to_email=config.get("to_email"),
         subject=config.get("subject"),
