@@ -1,12 +1,12 @@
 [tool.poetry]
-name = "fsn-to-cloud"
+name = "zkteco-to-db"
 version = "0.1.0"
 description = ""
 authors = ["Thanaphat T. <ice48623@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "3.10.9"
+python = "3.11.1"
 pyzk = "^0.9"
 peewee = "^3.17.1"
 psycopg2-binary = "^2.9.9"
@@ -14,6 +14,9 @@ pandas = "^2.2.3"
 openpyxl = "^3.1.5"
 xlsxwriter = "^3.2.2"
 
+
+[tool.poetry.group.dev.dependencies]
+setuptools = "^80.8.0"
 
 [build-system]
 requires = ["poetry-core"]

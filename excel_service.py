@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 import pandas as pd
 from datetime import datetime, date, timedelta
 
@@ -55,33 +57,38 @@ class ExcelService:
         minutes, _ = divmod(remainder, 60)
         return '{:02d}'.format(hours), '{:02d}'.format(minutes)
 
-    def prepare_data(self, records) -> tuple:
-        columns = ['ชื่อ', 'เวลาเข้า', 'เวลาออก', 'เวลาทำงาน', 'ล่วงเวลา (OT)']
-        data = []
-        row = []
-        current_date = None
-        current_user = None
-        for idx, r in enumerate(records):
-            if not current_user:
-                current_user = r.user_id.name
-            if not current_date:
-                current_date = r.timestamp.date()
+    def prepare_data(self, data):
+        columns = ['ชื่อ', 'วันที่', 'เวลาเข้า', 'เวลาออก', 'เวลาทำงาน', 'ล่วงเวลา (OT)']
+        # Group by name and date
+        grouped = defaultdict(lambda: defaultdict(list))
 
-            if current_date != r.timestamp.date() or idx == len(records)-1:
-                if idx == len(records)-1:
-                    row.append(r.timestamp)
-                wh_hours, wh_minutes = self.calculate_actual_working_hours(start_time=row[0], end_time=row[-1])
+        for record in data:
+            name = record.user_id.name
+            timestamp = pd.to_datetime(record.timestamp)
+            date = timestamp.date()
+            grouped[name][date].append(timestamp)
+
+        # Process data into rows
+        rows = []
+
+        for name, dates in grouped.items():
+            for date, times in dates.items():
+                times.sort()
+                check_in = times[0]
+                check_out = times[-1]
+                wh_hours, wh_minutes = self.calculate_actual_working_hours(start_time=check_in, end_time=check_out)
                 actual_working_hours = f"{wh_hours}:{wh_minutes}"
-                ot_hours, ot_minutes = self.calculate_ot(start_time=row[0], end_time=row[-1])
-                ot = f"{ot_hours}:{ot_minutes}"
-                data.append([current_user, row[0], row[-1], actual_working_hours, ot])
-                row = []
-                current_user = r.user_id.name
-                current_date = r.timestamp.date()
-
-            row.append(r.timestamp)
-
-        return data, columns
+                ot_hours, ot_minutes = self.calculate_ot(check_in, check_out)
+                overtime = f"{ot_hours}:{ot_minutes}"
+                rows.append({
+                    'ชื่อ': name,
+                    'วันที่': date,
+                    'เวลาเข้า': check_in.time(),
+                    'เวลาออก': check_out.time(),
+                    'เวลาทำงาน': actual_working_hours,
+                    'ล่วงเวลา (OT)': overtime
+                })
+        return rows, columns
 
     def generate_excel(self, data: list, columns: list, output_path: str, sheet_name: str):
         df = DataFrame(data=data, columns=columns)
@@ -96,8 +103,17 @@ class ExcelService:
 
         writer.close()
 
+    def prepare_raw_data(self, records):
+        columns = ['ชื่อ', 'เวลาเข้า']
+        data = []
+        for record in records:
+            data.append([record.user_id.name, record.timestamp])
+        return data, columns
+
     def export(self, output_path: str = 'output.xlsx'):
         records = self.load_data(start_date=self.start_date, end_date=self.end_date)
-        data, columns = self.prepare_data(records=records)
+        data, columns = self.prepare_data(data=records)
         self.generate_excel(data=data, columns=columns, output_path=output_path, sheet_name='attendance')
+        # raw_data, raw_columns = self.prepare_raw_data(records=records)
+        # self.generate_excel(data=raw_data, columns=raw_columns, output_path="test.xlsx", sheet_name='attendance')
         return output_path
