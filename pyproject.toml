@@ -6,7 +6,7 @@ authors = ["Thanaphat T. <ice48623@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "3.11.1"
+python = "3.11.*"
 pyzk = "^0.9"
 peewee = "^3.17.1"
 psycopg2-binary = "^2.9.9"
