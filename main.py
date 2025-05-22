@@ -5,6 +5,7 @@ from const import AttendancePunchType
 from excel_service import ExcelService
 from mail_service import MailService
 from model import psql_db, User, Attendance
+from sendgrid_service import SendgridService
 from zkteco import ZKTeco
 from zkteco import Attendance as ZKAttendance
 from zkteco import User as ZKUser
@@ -88,18 +89,16 @@ def export_excel(start_date: str, end_date: str):
 
 
 def export_and_send(start_date: str, end_date: str):
-    config = load_config(filename=config_file, section="gmail")
+    config = load_config(filename=config_file, section="sendgrid")
     service = ExcelService(start_date=start_date, end_date=end_date)
     file_path = service.export(output_path=f"รายงานการเข้างาน Amazon มศว - {start_date} - {end_date}.xlsx")
-    MailService.send_mail(
-        to_email=config.get("to_email"),
-        subject=config.get("subject"),
-        message=config.get("message"),
-        attachments=[file_path],
-        host=config.get("host"),
-        port=config.get("port"),
+    subject = f"{config.get('subject')} - {start_date} - {end_date}"
+    SendgridService.send_email(
         from_email=config.get("from_email"),
-        app_password=config.get("app_password")
+        to_email=config.get("to_email"),
+        subject=subject,
+        attachment=file_path,
+        api_key=config.get("sendgrid_api_key")
     )
     if os.path.exists(file_path):
         os.remove(file_path)
