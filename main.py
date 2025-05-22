@@ -93,9 +93,10 @@ def export_and_send(start_date: str, end_date: str):
     service = ExcelService(start_date=start_date, end_date=end_date)
     file_path = service.export(output_path=f"รายงานการเข้างาน Amazon มศว - {start_date} - {end_date}.xlsx")
     subject = f"{config.get('subject')} - {start_date} - {end_date}"
+    to_emails = config.get("to_email").split(",")
     SendgridService.send_email(
         from_email=config.get("from_email"),
-        to_email=config.get("to_email"),
+        to_emails=to_emails,
         subject=subject,
         attachment=file_path,
         api_key=config.get("sendgrid_api_key")

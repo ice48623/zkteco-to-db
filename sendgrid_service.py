@@ -7,14 +7,14 @@ class SendgridService:
     @staticmethod
     def send_email(
         from_email: str,
-        to_email: str,
+        to_emails: list,
         subject: str,
         attachment: str,
         api_key: str
     ) -> None:
         message = Mail(
             from_email=from_email,
-            to_emails=to_email,
+            to_emails=to_emails,
             subject=subject,
             html_content=subject
         )
