@@ -14,6 +14,8 @@ pandas = "^2.2.3"
 openpyxl = "^3.1.5"
 xlsxwriter = "^3.2.2"
 sendgrid = "^6.12.2"
+brevo-python = "^1.2.0"
+pyyaml = "^6.0.2"
 
 
 [tool.poetry.group.dev.dependencies]

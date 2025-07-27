@@ -1,11 +1,12 @@
 import os
 import argparse
+
+from brevo_service import BrevoService
 from config import load_config
+from config_loader import load_config as yaml_load_config
 from const import AttendancePunchType
 from excel_service import ExcelService
-from mail_service import MailService
 from model import psql_db, User, Attendance
-from sendgrid_service import SendgridService
 from zkteco import ZKTeco
 from zkteco import Attendance as ZKAttendance
 from zkteco import User as ZKUser
@@ -89,17 +90,21 @@ def export_excel(start_date: str, end_date: str):
 
 
 def export_and_send(start_date: str, end_date: str):
-    config = load_config(filename=config_file, section="sendgrid")
+    config = yaml_load_config(filename="config.yaml", section="brevo")
     service = ExcelService(start_date=start_date, end_date=end_date)
-    file_path = service.export(output_path=f"รายงานการเข้างาน Amazon มศว - {start_date} - {end_date}.xlsx")
+    file_name = f"รายงานการเข้างาน Amazon มศว - {start_date} - {end_date}.xlsx"
+    file_path = service.export(output_path=file_name)
     subject = f"{config.get('subject')} - {start_date} - {end_date}"
-    to_emails = config.get("to_email").split(",")
-    SendgridService.send_email(
+    message = config.get("message", "")
+    to_emails = config.get("to_emails", [])
+    BrevoService.send_email(
         from_email=config.get("from_email"),
         to_emails=to_emails,
         subject=subject,
-        attachment=file_path,
-        api_key=config.get("sendgrid_api_key")
+        message=message,
+        attachment_name=file_name,
+        attachment_path=file_path,
+        api_key=config.get("brevo_api_key")
     )
     if os.path.exists(file_path):
         os.remove(file_path)
